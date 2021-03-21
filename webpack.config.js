@@ -2,7 +2,7 @@
  * @typedef {import('webpack').Configuration} WebPackConfiguration
  */
 const HtmlWebPackPlugin = require('html-webpack-plugin');
-const CleanWebPackPlugin = require('clean-webpack-plugin');
+const CleanWebPackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 
 const path = require('path');
 const isDevServer = process.argv.find(v => v.includes('webpack-dev-server'));
@@ -18,6 +18,9 @@ module.exports = function (env) {
     return {
         entry: {
             index: "./src/index.js"
+        },
+        output:{ // to make CleanWebpackPlugin work
+            path: path.resolve("dist")
         },
         mode: env&&env.mode || (isDevServer?'development':'production'),
         devtool: isDevServer? 'inline-source-map' : undefined,
@@ -70,7 +73,7 @@ module.exports = function (env) {
                 template: "./src/index.html",
                 contentBase: path.join(__dirname, 'dist'),
             }),
-            new CleanWebPackPlugin("dist")
+            new CleanWebPackPlugin()
         ],
         devServer: {
             open: true,
@@ -87,12 +90,13 @@ module.exports = function (env) {
                 //   maxAsyncRequests: 5,
                 //   maxInitialRequests: 3,
                 // automaticNameDelimiter: '~',
-                // name: true,
+                name:"modules",
                 cacheGroups: {
                     node_modules: {
                         test: /[\\/]node_modules[\\/]/,
                         priority: -10,
                         minSize: 10000,
+                        maxSize: 250 * 1024
                     },
                     default: {
                         minChunks: 2,
